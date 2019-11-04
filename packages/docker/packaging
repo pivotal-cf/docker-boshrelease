@@ -1,38 +1,34 @@
-set -e # exit immediately if a simple command exits with a non-zero status
-set -u # report the usage of uninitialized variables
+set -eu
 
 # Detect # of CPUs so make jobs can be parallelized
 CPUS=`grep -c ^processor /proc/cpuinfo`
 
-# We grab the latest versions that are in the directory
-AUFS_TOOLS_VERSION=`ls -r docker/aufs-tools_*.deb | sed 's/docker\/aufs-tools_\(.*\).deb/\1/' | head -1`
-AUTOCONF_VERSION=`ls -r docker/autoconf-*.tar.gz | sed 's/docker\/autoconf-\(.*\)\.tar\.gz/\1/' | head -1`
-BRIDGE_UTILS_VERSION=`ls -r docker/bridge-utils-*.tar.gz | sed 's/docker\/bridge-utils-\(.*\)\.tar\.gz/\1/' | head -1`
-DOCKER_VERSION=`ls -r docker/docker-*.tgz | sed 's/docker\/docker-\(.*\)\.tgz/\1/' | head -1`
-
-# Extract Autoconf package
+AUTOCONF_VERSION="2.69"
+AUTOCONF_PACKAGE=autoconf
 echo "Extracting Autoconf ${AUTOCONF_VERSION}..."
-tar xzvf ${BOSH_COMPILE_TARGET}/docker/autoconf-${AUTOCONF_VERSION}.tar.gz
+tar xzvf ${BOSH_COMPILE_TARGET}/docker/${AUTOCONF_PACKAGE}-${AUTOCONF_VERSION}.tar.gz
 if [[ $? != 0 ]] ; then
   echo "Failed extracting Autoconf ${AUTOCONF_VERSION}"
   exit 1
 fi
 
-# Extract bridge-utils package
+BRIDGE_UTILS_VERSION="1.5"
+BRIDGE_UTILS_PACKAGE="bridge-utils"
 echo "Extracting bridge-utils ${BRIDGE_UTILS_VERSION}..."
-tar xzvf ${BOSH_COMPILE_TARGET}/docker/bridge-utils-${BRIDGE_UTILS_VERSION}.tar.gz
+tar xzvf ${BOSH_COMPILE_TARGET}/docker/${BRIDGE_UTILS_PACKAGE}-${BRIDGE_UTILS_VERSION}.tar.gz
 if [[ $? != 0 ]] ; then
   echo "Failed extracting bridge-utils ${BRIDGE_UTILS_VERSION}"
   exit 1
 fi
 
-# Copy aufs-tools package
+AUFS_TOOLS_VERSION="20120411"
+AUFS_TOOLS_PACKAGE="aufs-tools"
 echo "Copying aufs-tools ${AUFS_TOOLS_VERSION}..."
-cp -a ${BOSH_COMPILE_TARGET}/docker/aufs-tools_${AUFS_TOOLS_VERSION}.deb ${BOSH_INSTALL_TARGET}/
+cp -a ${BOSH_COMPILE_TARGET}/docker/${AUFS_TOOLS_PACKAGE}_${AUFS_TOOLS_VERSION}-3_amd64.deb ${BOSH_INSTALL_TARGET}/
 
 # Build Autoconf package
 echo "Building Autoconf ${AUTOCONF_VERSION}..."
-cd ${BOSH_COMPILE_TARGET}/autoconf-${AUTOCONF_VERSION}
+cd ${BOSH_COMPILE_TARGET}/${AUTOCONF_PACKAGE}-${AUTOCONF_VERSION}
 ./configure
 make -j${CPUS}
 make install
@@ -46,8 +42,10 @@ make -j${CPUS}
 make install
 
 # Extract docker package
+DOCKER_VERSION="18.09.9"
+DOCKER_PACKAGE=docker
 echo "Extracting docker ${DOCKER_VERSION}..."
-tar xzvf ${BOSH_COMPILE_TARGET}/docker/docker-${DOCKER_VERSION}.tgz
+tar xzvf ${BOSH_COMPILE_TARGET}/docker/${DOCKER_PACKAGE}-${DOCKER_VERSION}.tgz
 if [[ $? != 0 ]] ; then
   echo "Failed extracting docker ${DOCKER_VERSION}"
   exit 1
@@ -57,3 +55,48 @@ echo "Copying docker ${DOCKER_VERSION} binaries..."
 mkdir -p ${BOSH_INSTALL_TARGET}/bin
 cp docker/* ${BOSH_INSTALL_TARGET}/bin
 chmod +x ${BOSH_INSTALL_TARGET}/bin/*
+
+
+# Open Source Licensing Information, used by the vmware OSM system
+# These license abbreviations are defined by the OSM system
+# See https://github.com/pivotal-cf/pks-bosh-lifecycle-home/tree/master/osl/osm-blob-manifests
+
+AUTOCONF_LICENSE=GPL2.0
+AUTOCONF_SOURCE_URL="http://ftp.gnu.org/gnu/autoconf/$AUTOCONF_PACKAGE-$AUTOCONF_VERSION.tar.gz"
+BRIDGE_UTILS_SOURCE_URL="https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/bridge-utils/1.5-15ubuntu1/bridge-utils_1.5.orig.tar.gz"
+BRIDGE_UTILS_LICENSE="GPL2.0"
+AUFS_TOOLS_SOURCE_URL="https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/aufs-tools/1:3.0+20120411-3/aufs-tools_3.0+20120411.orig.tar.xz"
+AUFS_TOOLS_LICENSE="GPL2.0"
+    
+# source: https://github.com/docker/docker-ce/blob/v18.09.8/components/engine/LICENSE
+DOCKER_LICENSE="Apache2.0"
+DOCKER_SOURCE_URL="https://github.com/docker/docker-ce/archive/v18.09.8.zip"
+
+cat <<EOF > ${BOSH_INSTALL_TARGET}/boshcycle_osm.json
+{ "packages": [
+    {
+    "name": "$AUTOCONF_PACKAGE",
+    "version": "$AUTOCONF_VERSION",
+    "url": "$AUTOCONF_SOURCE_URL",
+    "license": "$AUTOCONF_LICENSE"
+    },
+    {
+    "name": "$BRIDGE_UTILS_PACKAGE",
+    "version": "$BRIDGE_UTILS_VERSION",
+    "url": "$BRIDGE_UTILS_SOURCE_URL",
+    "license": "$BRIDGE_UTILS_LICENSE"
+    },
+    {
+    "name": "$AUFS_TOOLS_PACKAGE",
+    "version": "$AUFS_TOOLS_VERSION",
+    "url": "$AUFS_TOOLS_SOURCE_URL",
+    "license": "$AUFS_TOOLS_LICENSE"
+    },
+    {
+    "name": "$DOCKER_PACKAGE",
+    "version": "$DOCKER_VERSION",
+    "url": "$DOCKER_SOURCE_URL",
+    "license": "$DOCKER_LICENSE"
+    }
+]}
+EOF
