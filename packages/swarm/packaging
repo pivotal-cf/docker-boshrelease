@@ -1,5 +1,4 @@
-set -e # exit immediately if a simple command exits with a non-zero status
-set -u # report the usage of uninitialized variables
+set -eu
 
 source /var/vcap/packages/golang-1.12-linux/bosh/compile.env
 
@@ -13,3 +12,8 @@ go install ${PACKAGE_NAME}
 
 # Clean up src & pkg artifacts
 rm -rf ${BOSH_INSTALL_TARGET}/pkg ${BOSH_INSTALL_TARGET}/src
+
+
+# Open Source Licensing Information, used by the vmware OSM system
+# we interpret the fact that swarm is a git submodule to mean that it is searched by the OSM system
+# as part of our code, and thus not listed as a licensed (binary) package

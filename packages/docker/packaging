@@ -3,8 +3,8 @@ set -eu
 # Detect # of CPUs so make jobs can be parallelized
 CPUS=`grep -c ^processor /proc/cpuinfo`
 
-AUTOCONF_VERSION="2.69"
 AUTOCONF_PACKAGE=autoconf
+AUTOCONF_VERSION="2.69"
 echo "Extracting Autoconf ${AUTOCONF_VERSION}..."
 tar xzvf ${BOSH_COMPILE_TARGET}/docker/${AUTOCONF_PACKAGE}-${AUTOCONF_VERSION}.tar.gz
 if [[ $? != 0 ]] ; then
@@ -12,8 +12,8 @@ if [[ $? != 0 ]] ; then
   exit 1
 fi
 
-BRIDGE_UTILS_VERSION="1.5"
 BRIDGE_UTILS_PACKAGE="bridge-utils"
+BRIDGE_UTILS_VERSION="1.5"
 echo "Extracting bridge-utils ${BRIDGE_UTILS_VERSION}..."
 tar xzvf ${BOSH_COMPILE_TARGET}/docker/${BRIDGE_UTILS_PACKAGE}-${BRIDGE_UTILS_VERSION}.tar.gz
 if [[ $? != 0 ]] ; then
@@ -21,8 +21,8 @@ if [[ $? != 0 ]] ; then
   exit 1
 fi
 
-AUFS_TOOLS_VERSION="20120411"
 AUFS_TOOLS_PACKAGE="aufs-tools"
+AUFS_TOOLS_VERSION="20120411"
 echo "Copying aufs-tools ${AUFS_TOOLS_VERSION}..."
 cp -a ${BOSH_COMPILE_TARGET}/docker/${AUFS_TOOLS_PACKAGE}_${AUFS_TOOLS_VERSION}-3_amd64.deb ${BOSH_INSTALL_TARGET}/
 
@@ -42,8 +42,8 @@ make -j${CPUS}
 make install
 
 # Extract docker package
-DOCKER_VERSION="18.09.9"
 DOCKER_PACKAGE=docker
+DOCKER_VERSION="18.09.9"
 echo "Extracting docker ${DOCKER_VERSION}..."
 tar xzvf ${BOSH_COMPILE_TARGET}/docker/${DOCKER_PACKAGE}-${DOCKER_VERSION}.tgz
 if [[ $? != 0 ]] ; then
@@ -67,7 +67,7 @@ BRIDGE_UTILS_SOURCE_URL="https://launchpad.net/ubuntu/+archive/primary/+sourcefi
 BRIDGE_UTILS_LICENSE="GPL2.0"
 AUFS_TOOLS_SOURCE_URL="https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/aufs-tools/1:3.0+20120411-3/aufs-tools_3.0+20120411.orig.tar.xz"
 AUFS_TOOLS_LICENSE="GPL2.0"
-    
+
 # source: https://github.com/docker/docker-ce/blob/v18.09.8/components/engine/LICENSE
 DOCKER_LICENSE="Apache2.0"
 DOCKER_SOURCE_URL="https://github.com/docker/docker-ce/archive/v18.09.8.zip"
