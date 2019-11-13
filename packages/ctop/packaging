@@ -16,7 +16,7 @@ chmod +x $BOSH_INSTALL_TARGET/bin/ctop
 CTOP_SOURCE_URL="https://github.com/bcicen/ctop/archive/v0.5.1.tar.gz"
 CTOP_LICENSE="MIT"
 
-cat <<EOF > ${BOSH_INSTALL_TARGET}/boshcycle_osm.json
+cat <<EOF > ${BOSH_INSTALL_TARGET}/osl-package.json
 { "packages": [
     {
     "name": "$CTOP_PACKAGE",

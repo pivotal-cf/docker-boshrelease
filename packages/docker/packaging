@@ -72,7 +72,7 @@ AUFS_TOOLS_LICENSE="GPL2.0"
 DOCKER_LICENSE="Apache2.0"
 DOCKER_SOURCE_URL="https://github.com/docker/docker-ce/archive/v18.09.8.zip"
 
-cat <<EOF > ${BOSH_INSTALL_TARGET}/boshcycle_osm.json
+cat <<EOF > ${BOSH_INSTALL_TARGET}/osl-package.json
 { "packages": [
     {
     "name": "$AUTOCONF_PACKAGE",

@@ -24,7 +24,7 @@ SWARM_VERSION="1.0.0"
 SWARM_LICENSE="Apache2.0"
 SWARM_SOURCE_URL="https://github.com/docker/swarm/archive/v1.0.0.zip"
 
-cat <<EOF > ${BOSH_INSTALL_TARGET}/boshcycle_osm.json
+cat <<EOF > ${BOSH_INSTALL_TARGET}/osl-package.json
 { "packages": [
     {
     "name": "$SWARM_PACKAGE",
