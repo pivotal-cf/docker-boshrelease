@@ -8,21 +8,23 @@ import (
 var MAX int = 1000
 var SHARED_DIR string = "/shared"
 func main() {
-	argsWithoutProg := os.Args[1:]
+	if len(os.Args) > 1 {
+		argsWithoutProg := os.Args[1:]
 
-	if len(argsWithoutProg) < 2 {
-		var err error
-		MAX, err = strconv.Atoi(argsWithoutProg[0])
-		if err != nil {
-			panic(err)
+		if len(argsWithoutProg) < 2 {
+			var err error
+			MAX, err = strconv.Atoi(argsWithoutProg[0])
+			if err != nil {
+				panic(err)
+			}
+		} else {
+			var err error
+			MAX, err = strconv.Atoi(argsWithoutProg[0])
+			if err != nil {
+				panic(err)
+			}
+			SHARED_DIR = argsWithoutProg[1]
 		}
-	} else {
-		var err error
-		MAX, err = strconv.Atoi(argsWithoutProg[0])
-		if err != nil {
-			panic(err)
-		}
-		SHARED_DIR = argsWithoutProg[1]
 	}
 
 	var files = make([]*os.File, MAX)
@@ -36,6 +38,7 @@ func main() {
 		}
 		files[i] = file
 	}
+	fmt.Printf("Finished opening %d files in folder %s\n", MAX, SHARED_DIR)
 }
 func closeFiles(files []*os.File) {
 	for i := 0; i < len(files); i++ {

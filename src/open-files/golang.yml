@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: golang-deployment
+  labels:
+    app: golang
+spec:
+  replicas: 20
+  selector:
+    matchLabels:
+      app: golang
+  template:
+    metadata:
+      labels:
+        app: golang
+    spec:
+      containers:
+        - image: golang:alpine
+          command:
+            - /bin/sh
+            - "-c"
+          args:
+            - |
+              mkdir /go/src/open-files
+              tee /go/src/open-files/main.go << EOF
+              package main
+              import (
+              	"fmt"
+              	"io/ioutil"
+              	"os"
+              	"strconv"
+              )
+              var MAX int = 1000
+              var SHARED_DIR string = "/shared"
+              func main() {
+              	if len(os.Args) > 1 {
+              		argsWithoutProg := os.Args[1:]
+
+              		if len(argsWithoutProg) < 2 {
+              			var err error
+              			MAX, err = strconv.Atoi(argsWithoutProg[0])
+              			if err != nil {
+              				panic(err)
+              			}
+              		} else {
+              			var err error
+              			MAX, err = strconv.Atoi(argsWithoutProg[0])
+              			if err != nil {
+              				panic(err)
+              			}
+              			SHARED_DIR = argsWithoutProg[1]
+              		}
+              	}
+
+              	var files = make([]*os.File, MAX)
+              	//defer closeFiles(files)
+              	for i := 0; i < MAX; i++ {
+              		file, err := ioutil.TempFile(SHARED_DIR, "ulimit-test-")
+              		if err != nil {
+              			fmt.Println(err)
+              			fmt.Printf("Failed to open file %d, see error above\n", i)
+              			return
+              		}
+              		files[i] = file
+              	}
+              	fmt.Printf("Finished opening %d files in folder %s\n", MAX, SHARED_DIR)
+              }
+              func closeFiles(files []*os.File) {
+              	for i := 0; i < len(files); i++ {
+              		if files[i] != nil {
+              			err := files[i].Close()
+              			if err != nil {
+              				fmt.Println(err)
+              				fmt.Println("Failed to close file, see error above")
+              			}
+              			err = os.Remove(files[i].Name())
+              			if err != nil {
+              				fmt.Println(err)
+              				fmt.Println("Failed to remove file, see error above")
+              			}
+              		} else {
+              			return
+              		}
+              	}
+              }
+              EOF
+              go build open-files
+              ./open-files 100000 /cache
+              echo "sleeping"
+              sleep 3600
+          imagePullPolicy: IfNotPresent
+          name: golang
+          volumeMounts:
+            - mountPath: /cache
+              name: cache-volume
+      volumes:
+        - name: cache-volume
+          emptyDir: {}
