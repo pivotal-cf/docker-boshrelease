@@ -13,7 +13,7 @@ templates:
   bin/envrc: bin/envrc
   bin/setup-user-env: bin/setup-user-env
   bin/job_properties.sh.erb: bin/job_properties.sh
-  bin/pre-start.sh: bin/pre-start
+  bin/pre-start.erb: bin/pre-start
   config/docker.cacert.erb: config/docker.cacert
   config/docker.cert.erb: config/docker.cert
   config/docker.key.erb: config/docker.key
