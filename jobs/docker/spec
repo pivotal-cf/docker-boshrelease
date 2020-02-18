@@ -13,6 +13,7 @@ templates:
   bin/envrc: bin/envrc
   bin/setup-user-env: bin/setup-user-env
   bin/job_properties.sh.erb: bin/job_properties.sh
+  bin/pre-start.erb: bin/pre-start
   config/docker.cacert.erb: config/docker.cacert
   config/docker.cert.erb: config/docker.cert
   config/docker.key.erb: config/docker.key
@@ -115,7 +116,7 @@ properties:
     default: true
   ulimit.nofile:
     description: "Maximum number of open files"
-    default: 8192
+    default: 65535
 
   vm.max_map_count:
     description: "If set, sets vm.max_map_count on VM"
