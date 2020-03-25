@@ -3,7 +3,7 @@ final_name: docker
 blobstore:
   provider: gcs
   options:
-    bucket_name: docker-boshrelease-blobs
+    bucket_name: pks-docker-boshrelease-blobs
     region: us-east1
     host: storage.googleapis.com
 
