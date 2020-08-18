@@ -99,14 +99,17 @@ case $1 in
   stop)
     # Stop Docker containers
     echo "Stopping docker containers..."
-    containers="$(/var/vcap/packages/docker/bin/docker --host unix://${DOCKER_PID_DIR}/docker.sock ps -q)"
-    if [[ ! -z $containers ]]; then
-      for container in $containers
-      do
-        echo "Stopping docker container ${container}"
-        /var/vcap/packages/docker/bin/docker --host unix://${DOCKER_PID_DIR}/docker.sock stop ${container}
-      done
+    set +e
+    # stopping 50 containers at a time using xargs as the limiter
+    /var/vcap/packages/docker/bin/docker --host unix://${DOCKER_PID_DIR}/docker.sock ps -q | xargs -n 50 /var/vcap/packages/docker/bin/docker --host unix://${DOCKER_PID_DIR}/docker.sock stop
+
+    containers="$(/var/vcap/packages/docker/bin/docker --host unix://${DOCKER_PID_DIR}/docker.sock ps -q | head -n 50)"
+    if [[ ! -z "$containers" ]]; then
+      echo "Kill the leftover containers: $containers"
+      timeout 60 killall -I containerd-shim --wait ||  "Fail to kill leftover containers in 60s"
     fi
+    set -e
+
 
     # Stop Docker daemon
     echo -n "Stopping docker daemon..."
