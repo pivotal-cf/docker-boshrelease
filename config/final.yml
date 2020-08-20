@@ -1,5 +1,5 @@
 ---
-final_name: docker
+final_name: tkgi-docker
 blobstore:
   provider: gcs
   options:
