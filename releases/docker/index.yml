@@ -1,4 +1,6 @@
 builds:
   4fa01aa4-4d6f-4f1c-7e31-ffcd145b9220:
     version: 1.7.0-build.18-1.7.x
+  c5ea4d4d-bb7c-4a68-5882-73b3c755e451:
+    version: 1.7.0-build.23-1.7.x
 format-version: "2"
