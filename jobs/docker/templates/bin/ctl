@@ -104,10 +104,22 @@ case $1 in
     /var/vcap/packages/docker/bin/docker --host unix://${DOCKER_PID_DIR}/docker.sock ps -q | xargs -n 50 /var/vcap/packages/docker/bin/docker --host unix://${DOCKER_PID_DIR}/docker.sock stop
 
     containers="$(/var/vcap/packages/docker/bin/docker --host unix://${DOCKER_PID_DIR}/docker.sock ps -q | head -n 50)"
-    if [[ ! -z "$containers" ]]; then
+    if [ ! -z "$containers" ]; then
+    # Let's wait grace-period time for docker stop finish.
       echo "Kill the leftover containers: $containers"
       timeout 60 killall -I containerd-shim --wait ||  "Fail to kill leftover containers in 60s"
     fi
+
+    pids=$(pgrep containerd-shim)
+    if [ ! -z "$pids" ]; then
+      echo "Need force killing leftover containers: $(ps aux | grep [c]ontainerd-shim)"
+      kill -9 $pids
+    fi
+
+    if [ ! -z "$(pgrep containerd-shim)" ]; then
+      echo "there're still leftover containers after force killing: $(ps aux | grep [c]ontainerd-shim)"
+    fi
+
     set -e
 
 
@@ -134,6 +146,14 @@ case $1 in
       set +e
       echo "Unmounting /var/vcap/store/docker/docker"
       umount /var/vcap/store/docker/docker
+      if [ ! -z $(cat /proc/mounts | grep /var/vcap/store/docker/docker) ]; then
+        echo "Fail to umount /var/vcap/store/docker/docker. Processes using this fs: "
+        fuser -M /var/vcap/store/docker/docker
+        lsof +f -- /var/vcap/store/docker/docker
+        sleep 10
+        echo ""
+        umount -l /var/vcap/store/docker/docker
+      fi
       set -e
     fi
     ;;
